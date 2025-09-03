@@ -1,0 +1,7 @@
+{
+  "service":"CatalogService",
+  "availability":"99.5",
+  "latency_p50_ms":50,
+  "latency_p95_ms":200,
+  "error_rate_percent":0.5
+}

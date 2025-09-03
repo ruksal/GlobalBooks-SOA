@@ -1,0 +1,6 @@
+<deploy xmlns="http://www.apache.org/ode/schemas/dd/2007/03">
+  <process name="PlaceOrder" xmlns="http://globalbooks.com/orchestration/placeorder">
+    <description>PlaceOrder process for GlobalBooks</description>
+    <service name="PlaceOrderService" port="PlaceOrderPort" location="PlaceOrder.bpel"/>
+  </process>
+</deploy>

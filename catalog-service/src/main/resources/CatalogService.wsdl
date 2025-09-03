@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:tns="http://globalbooks.com/catalog/v1"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             name="CatalogService"
+             targetNamespace="http://globalbooks.com/catalog/v1">
+  <types>
+    <xsd:schema targetNamespace="http://globalbooks.com/catalog/v1">
+      <xsd:element name="GetBookRequest">
+        <xsd:complexType><xsd:sequence><xsd:element name="isbn" type="xsd:string"/></xsd:sequence></xsd:complexType>
+      </xsd:element>
+      <xsd:element name="GetBookResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="isbn" type="xsd:string"/>
+            <xsd:element name="title" type="xsd:string"/>
+            <xsd:element name="price" type="xsd:decimal"/>
+            <xsd:element name="currency" type="xsd:string"/>
+            <xsd:element name="inventory" type="xsd:int"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="SearchRequest">
+        <xsd:complexType><xsd:sequence><xsd:element name="query" type="xsd:string"/><xsd:element name="limit" type="xsd:int" minOccurs="0"/></xsd:sequence></xsd:complexType>
+      </xsd:element>
+      <xsd:element name="SearchResponse">
+        <xsd:complexType><xsd:sequence><xsd:element name="items" minOccurs="0" maxOccurs="unbounded"><xsd:complexType><xsd:sequence><xsd:element name="isbn" type="xsd:string"/><xsd:element name="title" type="xsd:string"/><xsd:element name="price" type="xsd:decimal"/></xsd:sequence></xsd:complexType></xsd:element></xsd:sequence></xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </types>
+
+  <message name="GetBookInput"><part name="parameters" element="tns:GetBookRequest"/></message>
+  <message name="GetBookOutput"><part name="parameters" element="tns:GetBookResponse"/></message>
+  <message name="SearchInput"><part name="parameters" element="tns:SearchRequest"/></message>
+  <message name="SearchOutput"><part name="parameters" element="tns:SearchResponse"/></message>
+
+  <portType name="CatalogPortType">
+    <operation name="GetBook">
+      <input message="tns:GetBookInput"/><output message="tns:GetBookOutput"/>
+    </operation>
+    <operation name="Search">
+      <input message="tns:SearchInput"/><output message="tns:SearchOutput"/>
+    </operation>
+  </portType>
+
+  <binding name="CatalogSoapBinding" type="tns:CatalogPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <operation name="GetBook">
+      <soap:operation soapAction="getBook"/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+    </operation>
+    <operation name="Search">
+      <soap:operation soapAction="search"/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+    </operation>
+  </binding>
+
+  <service name="CatalogService">
+    <port name="CatalogPort" binding="tns:CatalogSoapBinding">
+      <soap:address location="http://localhost:8080/catalog-service/soap/catalog/v1"/>
+    </port>
+  </service>
+</definitions>

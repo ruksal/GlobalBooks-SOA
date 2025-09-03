@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process name="PlaceOrder" xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:tns="http://globalbooks.com/orchestration/placeorder"
+         targetNamespace="http://globalbooks.com/orchestration/placeorder">
+  <import namespace="http://globalbooks.com/catalog/v1" location="wsdl/CatalogService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"/>
+  <import namespace="http://globalbooks.com/orders/v1" location="wsdl/OrdersService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"/>
+
+  <partnerLinks>
+    <partnerLink name="client" partnerLinkType="tns:PlaceOrderPLT" myRole="ProcessRole"/>
+    <partnerLink name="catalog" partnerLinkType="tns:CatalogPLT" partnerRole="CatalogRole"/>
+    <partnerLink name="orders" partnerLinkType="tns:OrdersPLT" partnerRole="OrdersRole"/>
+  </partnerLinks>
+
+  <variables>
+    <variable name="orderReq" messageType="tns:OrderMessage"/>
+    <variable name="catalogReq" messageType="cat:GetBookRequest"/>
+    <variable name="catalogResp" messageType="cat:GetBookResponse"/>
+    <variable name="orderResp" messageType="ord:OrderResponse"/>
+  </variables>
+
+  <sequence>
+    <receive partnerLink="client" operation="placeOrder" variable="orderReq" createInstance="yes"/>
+    <assign>
+      <!-- init total, counters in BPEL variables if needed -->
+    </assign>
+
+    <forEach counterName="i" parallel="no">
+      <scope>
+        <assign>
+          <!-- map item i isbn to catalogReq -->
+        </assign>
+        <invoke partnerLink="catalog" operation="GetBook" inputVariable="catalogReq" outputVariable="catalogResp"/>
+        <if>
+          <condition>$catalogResp/inventory &lt; 1</condition>
+          <throw faultName="tns:OutOfStockFault"/>
+        </if>
+        <assign>
+          <!-- accumulate totals -->
+        </assign>
+      </scope>
+    </forEach>
+
+    <invoke partnerLink="orders" operation="createOrder" inputVariable="orderReq" outputVariable="orderResp"/>
+    <!-- optionally invoke a SOAP-bridge to publish to RabbitMQ or call payments -->
+    <reply partnerLink="client" operation="placeOrder" variable="orderResp"/>
+  </sequence>
+</process>
